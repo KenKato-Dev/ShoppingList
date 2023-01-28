@@ -10,9 +10,7 @@ import Combine
 
 class ShoppingListViewController: UIViewController {
 
-    @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var shoppingListTableView: UITableView!
-    @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var deleteButton: UIButton!
     private var array:[String] = []
     private var cancellable = Set<AnyCancellable>()
@@ -20,7 +18,6 @@ class ShoppingListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.nameTextField.delegate = self
         self.shoppingListTableView.delegate = self
         self.shoppingListTableView.dataSource = self
         self.setupBinder()
@@ -28,13 +25,13 @@ class ShoppingListViewController: UIViewController {
         self.nameTextField.addAction(.init(handler: { _ in
             guard let name = self.nameTextField.text else{return}
             self.viewModel.displayEditingTextOnFirst(name)
-            self.shoppingListTableView.reloadData()
+//            self.shoppingListTableView.reloadData() //いらない、.editingChangedなだけでcellの数は変わらず
         }), for: .editingChanged)
         self.addButton.addAction(.init(handler: { _ in
             //addbutton処理
             guard let name = self.nameTextField.text else{return}
             self.array.append(name)
-            self.viewModel.didTapAddButton(self.array)
+            self.viewModel.didTapAddButton(name)
             self.nameTextField.text = ""
             self.shoppingListTableView.reloadData()
         }), for: .touchUpInside)
@@ -47,16 +44,13 @@ class ShoppingListViewController: UIViewController {
     }
     
     private func setupBinder(){
-        //viewModelのPublishedをsinkで監視購読
+        //viewModelのPublishedをsinkで監視購読し実行
         self.viewModel.$namesArray.sink { [weak self] namesArray in
-            if let namesArray = namesArray{
                 self?.array = namesArray
-            }
         }.store(in: &cancellable)
         
         self.viewModel.$name.sink { [weak self] name in
             if let name = name{
-//                print("name:\(name)")
                 self?.navigationItem.title = name
             }else{
             }
@@ -68,13 +62,11 @@ extension ShoppingListViewController:UITextFieldDelegate{
 }
 extension ShoppingListViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        self.viewModel.numberOfRows()
-        self.viewModel.numberOfRows()
-//        self.array.count
+        self.viewModel.namesArray.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = shoppingListTableView.dequeueReusableCell(withIdentifier: "ShoppingListCell", for: indexPath) as? ShoppingListCell else {fatalError("Cell表示に失敗")}
-        cell.nameLabel.text = self.viewModel.cellForRowAt(indexPath: indexPath)
+        cell.nameLabel.text = self.viewModel.namesArray[indexPath.row]
 //        cell.nameLabel.text = self.array[indexPath.row]
         return cell
     }
@@ -98,3 +90,4 @@ extension ShoppingListViewController:UITableViewDelegate,UITableViewDataSource{
     
     
 }
+// 消去機能、お気に入り

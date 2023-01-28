@@ -9,7 +9,8 @@ import Foundation
 
 struct Item {
     let itemName:String
-    let itemQuantity:Int
+    var isFavorited:Bool
+    var isBought:Bool
 }
 
 final class ShoppingListModel {

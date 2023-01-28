@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EC30997A29853F4300FA2AE2 /* AppendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC30997929853F4300FA2AE2 /* AppendViewController.swift */; };
+		EC30997C29853F5900FA2AE2 /* AppendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC30997B29853F5900FA2AE2 /* AppendViewModel.swift */; };
+		EC30997E29853F7600FA2AE2 /* AppendTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC30997D29853F7600FA2AE2 /* AppendTableViewCell.swift */; };
 		EC6E02592974336100A2E70E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6E02582974336100A2E70E /* AppDelegate.swift */; };
 		EC6E025B2974336100A2E70E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6E025A2974336100A2E70E /* SceneDelegate.swift */; };
 		EC6E025D2974336100A2E70E /* ShoppingListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6E025C2974336100A2E70E /* ShoppingListViewController.swift */; };
@@ -19,6 +22,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EC30997929853F4300FA2AE2 /* AppendViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppendViewController.swift; sourceTree = "<group>"; };
+		EC30997B29853F5900FA2AE2 /* AppendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppendViewModel.swift; sourceTree = "<group>"; };
+		EC30997D29853F7600FA2AE2 /* AppendTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppendTableViewCell.swift; sourceTree = "<group>"; };
 		EC6E02552974336100A2E70E /* ShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC6E02582974336100A2E70E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EC6E025A2974336100A2E70E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -43,6 +49,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		EC30997729853E4B00FA2AE2 /* ShoppingList */ = {
+			isa = PBXGroup;
+			children = (
+				EC6E025C2974336100A2E70E /* ShoppingListViewController.swift */,
+				EC6E026C2975857D00A2E70E /* ShoppingListViewModel.swift */,
+				EC6E02722977A5D700A2E70E /* ShoppingListCell.swift */,
+			);
+			path = ShoppingList;
+			sourceTree = "<group>";
+		};
+		EC30997829853F0300FA2AE2 /* Append */ = {
+			isa = PBXGroup;
+			children = (
+				EC30997929853F4300FA2AE2 /* AppendViewController.swift */,
+				EC30997B29853F5900FA2AE2 /* AppendViewModel.swift */,
+				EC30997D29853F7600FA2AE2 /* AppendTableViewCell.swift */,
+			);
+			path = Append;
+			sourceTree = "<group>";
+		};
 		EC6E024C2974336100A2E70E = {
 			isa = PBXGroup;
 			children = (
@@ -64,10 +90,9 @@
 			children = (
 				EC6E02582974336100A2E70E /* AppDelegate.swift */,
 				EC6E025A2974336100A2E70E /* SceneDelegate.swift */,
-				EC6E025C2974336100A2E70E /* ShoppingListViewController.swift */,
-				EC6E026C2975857D00A2E70E /* ShoppingListViewModel.swift */,
 				EC6E026E2975858D00A2E70E /* ShoppingListModel.swift */,
-				EC6E02722977A5D700A2E70E /* ShoppingListCell.swift */,
+				EC30997729853E4B00FA2AE2 /* ShoppingList */,
+				EC30997829853F0300FA2AE2 /* Append */,
 				EC6E025E2974336100A2E70E /* Main.storyboard */,
 				EC6E02612974336300A2E70E /* Assets.xcassets */,
 				EC6E02632974336300A2E70E /* LaunchScreen.storyboard */,
@@ -151,8 +176,11 @@
 				EC6E025D2974336100A2E70E /* ShoppingListViewController.swift in Sources */,
 				EC6E02592974336100A2E70E /* AppDelegate.swift in Sources */,
 				EC6E02732977A5D700A2E70E /* ShoppingListCell.swift in Sources */,
+				EC30997C29853F5900FA2AE2 /* AppendViewModel.swift in Sources */,
+				EC30997E29853F7600FA2AE2 /* AppendTableViewCell.swift in Sources */,
 				EC6E026D2975857D00A2E70E /* ShoppingListViewModel.swift in Sources */,
 				EC6E025B2974336100A2E70E /* SceneDelegate.swift in Sources */,
+				EC30997A29853F4300FA2AE2 /* AppendViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
