@@ -7,25 +7,51 @@
 
 import Foundation
 
-struct Item {
-    let itemName:String
-    var isFavorited:Bool
-    var isBought:Bool
+struct Item: Codable, Hashable {
+    let itemName: String
+    var isFavorited: Bool
+    var isBought: Bool
 }
 
 final class ShoppingListModel {
     private let userDefaults = UserDefaults()
-    
-    func post(_ names:[String]){
-        self.userDefaults.set(names, forKey: "names")
-    }
-    func fetch()->[String]{
-        let anyNames = self.userDefaults.array(forKey: "names")
-        if let names = anyNames as?[String]{
-            return names
-        }else{
-            print("fetchに失敗")
+
+    func post(_ itemArray: [Item], _ completion:@escaping(Result<Void, Error>) -> Void) {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+
+        do {
+            let data = try encoder.encode(itemArray)
+            userDefaults.set(data, forKey: "postedData")
+            completion(.success(()))
+        } catch {
+            completion(.failure(error))
+            print("えんこーどに失敗")
         }
-        return [""]
+
     }
+    func fetch(_ completion:@escaping(Result<[Item], Error>) -> Void) {
+        let decoder = JSONDecoder()
+        guard let postedItem = userDefaults.value(forKey: "postedData") as? Data else {return}
+        do {
+            let decodedItemArray = try decoder.decode([Item].self, from: postedItem)
+            completion(.success(decodedItemArray))
+        } catch {
+            completion(.failure(error))
+            print("デコードに失敗")
+        }
+    }
+    func delete() {
+
+    }
+    // postで代用可能
+//    func postToFavorites(){
+//
+//    }
+//    func fetchFromFavorites() {
+//
+//    }
+//    func deleteFromFavorites() {
+//
+//    }
 }

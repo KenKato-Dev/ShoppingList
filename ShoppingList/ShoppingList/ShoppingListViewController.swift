@@ -10,84 +10,107 @@ import Combine
 
 class ShoppingListViewController: UIViewController {
 
+    @IBOutlet weak var appendButton: UIButton!
+    @IBOutlet weak var favoriteButton: UIButton!
     @IBOutlet weak var shoppingListTableView: UITableView!
     @IBOutlet weak var deleteButton: UIButton!
-    private var array:[String] = []
+    private var array: [Item] = []
     private var cancellable = Set<AnyCancellable>()
-    private let viewModel:ShoppingListViewModel = ShoppingListViewModel(model: ShoppingListModel())
-    
+    private let viewModel: ShoppingListViewModel = ShoppingListViewModel(model: ShoppingListModel())
+    private typealias Snapshot = NSDiffableDataSourceSnapshot<Int, Item>
+    private typealias DataSource = UITableViewDiffableDataSource<Int, Item>
+    private var dataSource: DataSource?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.shoppingListTableView.delegate = self
         self.shoppingListTableView.dataSource = self
+
         self.setupBinder()
-        self.shoppingListTableView.reloadData()
-        self.nameTextField.addAction(.init(handler: { _ in
-            guard let name = self.nameTextField.text else{return}
-            self.viewModel.displayEditingTextOnFirst(name)
-//            self.shoppingListTableView.reloadData() //いらない、.editingChangedなだけでcellの数は変わらず
-        }), for: .editingChanged)
-        self.addButton.addAction(.init(handler: { _ in
-            //addbutton処理
-            guard let name = self.nameTextField.text else{return}
-            self.array.append(name)
-            self.viewModel.didTapAddButton(name)
-            self.nameTextField.text = ""
-            self.shoppingListTableView.reloadData()
+        self.appendButton.addAction(.init(handler: { _ in
+            self.performSegue(withIdentifier: "ToAppendView", sender: nil)
         }), for: .touchUpInside)
         self.deleteButton.addAction(.init(handler: { _ in
             self.viewModel.didTapDeleteButton()
         }), for: .touchUpInside)
     }
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
-    
-    private func setupBinder(){
-        //viewModelのPublishedをsinkで監視購読し実行
-        self.viewModel.$namesArray.sink { [weak self] namesArray in
-                self?.array = namesArray
-        }.store(in: &cancellable)
-        
-        self.viewModel.$name.sink { [weak self] name in
-            if let name = name{
-                self?.navigationItem.title = name
-            }else{
-            }
-        }.store(in: &cancellable)
-    }
+
 }
-extension ShoppingListViewController:UITextFieldDelegate{
-    
+extension ShoppingListViewController: UITextFieldDelegate {
+
 }
-extension ShoppingListViewController:UITableViewDelegate,UITableViewDataSource{
+extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        self.viewModel.namesArray.count
+        self.array.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = shoppingListTableView.dequeueReusableCell(withIdentifier: "ShoppingListCell", for: indexPath) as? ShoppingListCell else {fatalError("Cell表示に失敗")}
-        cell.nameLabel.text = self.viewModel.namesArray[indexPath.row]
+
+        cell.nameLabel.text = self.array[indexPath.row].itemName
 //        cell.nameLabel.text = self.array[indexPath.row]
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("\(indexPath.row)番目のcellがタップされました")
+//        print("\(indexPath.row)番目のcellがタップされました")
     }
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        self.viewModel.isDelete
-    }
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        switch editingStyle{
-        case .delete:
-            self.array.remove(at: indexPath.row)
-            shoppingListTableView.beginUpdates()
-            shoppingListTableView.deleteRows(at: [indexPath], with: .automatic)
-            shoppingListTableView.endUpdates()
-        case.insert, .none:
-            break
+        if self.viewModel.state == .delete {
+            return true
+        } else {
+            return false
         }
     }
-    
-    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//        switch editingStyle {
+//        case .delete:
+//            self.array.remove(at: indexPath.row)
+//            shoppingListTableView.beginUpdates()
+//            shoppingListTableView.deleteRows(at: [indexPath], with: .automatic)
+//            shoppingListTableView.endUpdates()
+//        case.insert, .none:
+//            break
+//        }
+    }
 }
-// 消去機能、お気に入り
+extension ShoppingListViewController {
+    private func setupBinder() {
+        // viewModelのPublishedをsinkで監視購読し実行
+        self.viewModel.$array.sink { [weak self] array in
+                self?.array = array
+        }.store(in: &cancellable)
+
+        self.viewModel.$state
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let state = state else {return}
+                switch state {
+                case .loaded:
+                    self?.reload()
+                case .error(let message):
+                    self?.showErrorMessageIfNeeded(message)
+                case .favorite:
+                    // favorite表示
+                    print("state = favorite")
+                case .delete:
+                    // deleteモード
+
+                    print("state = delete")
+                }
+            }.store(in: &cancellable)
+        Task {
+            await viewModel.fetchArray()
+        }
+    }
+    private func reload() {
+//        guard let refreshControl = shoppingListTableView.refreshControl else {return}
+//        shoppingListTableView.setContentOffset(CGPoint(x: 0, y: shoppingListTableView.contentOffset.y - refreshControl.frame.height), animated: true)
+//        refreshControl.beginRefreshing()
+        self.shoppingListTableView.reloadData()
+    }
+    private func showErrorMessageIfNeeded(_ message: String) {
+        let alert = UIAlertController(title: "エラー", message: message, preferredStyle: .alert)
+        alert.addAction(.init(title: "閉じる", style: .default))
+        present(alert, animated: true)
+    }
+}

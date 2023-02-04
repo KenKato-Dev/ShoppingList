@@ -10,6 +10,7 @@
 		EC30997A29853F4300FA2AE2 /* AppendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC30997929853F4300FA2AE2 /* AppendViewController.swift */; };
 		EC30997C29853F5900FA2AE2 /* AppendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC30997B29853F5900FA2AE2 /* AppendViewModel.swift */; };
 		EC30997E29853F7600FA2AE2 /* AppendTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC30997D29853F7600FA2AE2 /* AppendTableViewCell.swift */; };
+		EC30998329865E9500FA2AE2 /* TextFieldSub.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC30998229865E9500FA2AE2 /* TextFieldSub.swift */; };
 		EC6E02592974336100A2E70E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6E02582974336100A2E70E /* AppDelegate.swift */; };
 		EC6E025B2974336100A2E70E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6E025A2974336100A2E70E /* SceneDelegate.swift */; };
 		EC6E025D2974336100A2E70E /* ShoppingListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6E025C2974336100A2E70E /* ShoppingListViewController.swift */; };
@@ -25,6 +26,7 @@
 		EC30997929853F4300FA2AE2 /* AppendViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppendViewController.swift; sourceTree = "<group>"; };
 		EC30997B29853F5900FA2AE2 /* AppendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppendViewModel.swift; sourceTree = "<group>"; };
 		EC30997D29853F7600FA2AE2 /* AppendTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppendTableViewCell.swift; sourceTree = "<group>"; };
+		EC30998229865E9500FA2AE2 /* TextFieldSub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldSub.swift; sourceTree = "<group>"; };
 		EC6E02552974336100A2E70E /* ShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC6E02582974336100A2E70E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EC6E025A2974336100A2E70E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 				EC6E02582974336100A2E70E /* AppDelegate.swift */,
 				EC6E025A2974336100A2E70E /* SceneDelegate.swift */,
 				EC6E026E2975858D00A2E70E /* ShoppingListModel.swift */,
+				EC30998229865E9500FA2AE2 /* TextFieldSub.swift */,
 				EC30997729853E4B00FA2AE2 /* ShoppingList */,
 				EC30997829853F0300FA2AE2 /* Append */,
 				EC6E025E2974336100A2E70E /* Main.storyboard */,
@@ -111,6 +114,7 @@
 				EC6E02512974336100A2E70E /* Sources */,
 				EC6E02522974336100A2E70E /* Frameworks */,
 				EC6E02532974336100A2E70E /* Resources */,
+				EC30998129865A6B00FA2AE2 /* Run SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -167,11 +171,33 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		EC30998129865A6B00FA2AE2 /* Run SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run SwiftLint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if test -d /opt/homebrew/bin; then\n    PATH=/opt/homebrew/bin/:$PATH\nfi\n\nif which swiftlint >/dev/null; then\n    swiftlint\n    swiftlint --fix\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		EC6E02512974336100A2E70E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC30998329865E9500FA2AE2 /* TextFieldSub.swift in Sources */,
 				EC6E026F2975858D00A2E70E /* ShoppingListModel.swift in Sources */,
 				EC6E025D2974336100A2E70E /* ShoppingListViewController.swift in Sources */,
 				EC6E02592974336100A2E70E /* AppDelegate.swift in Sources */,
