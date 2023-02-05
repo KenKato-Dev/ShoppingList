@@ -5,112 +5,163 @@
 //  Created by 加藤研太郎 on 2023/01/15.
 //
 
-import UIKit
 import Combine
+import UIKit
 
 class ShoppingListViewController: UIViewController {
-
-    @IBOutlet weak var appendButton: UIButton!
-    @IBOutlet weak var favoriteButton: UIButton!
-    @IBOutlet weak var shoppingListTableView: UITableView!
-    @IBOutlet weak var deleteButton: UIButton!
+    @IBOutlet var appendButton: UIButton!
+    @IBOutlet var favoriteButton: UIButton!
+    @IBOutlet var shoppingListTableView: UITableView!
+    @IBOutlet var deleteButton: UIButton!
     private var array: [Item] = []
     private var cancellable = Set<AnyCancellable>()
-    private let viewModel: ShoppingListViewModel = ShoppingListViewModel(model: ShoppingListModel())
+    private let viewModel: ShoppingListViewModel = .init(model: ShoppingListModel())
     private typealias Snapshot = NSDiffableDataSourceSnapshot<Int, Item>
     private typealias DataSource = UITableViewDiffableDataSource<Int, Item>
     private var dataSource: DataSource?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.shoppingListTableView.delegate = self
-        self.shoppingListTableView.dataSource = self
-
-        self.setupBinder()
-        self.appendButton.addAction(.init(handler: { _ in
+        shoppingListTableView.delegate = self
+        setupBinder()
+        appendButton.addAction(.init(handler: { _ in
             self.performSegue(withIdentifier: "ToAppendView", sender: nil)
         }), for: .touchUpInside)
-        self.deleteButton.addAction(.init(handler: { _ in
+        deleteButton.addAction(.init(handler: { _ in
             self.viewModel.didTapDeleteButton()
+        }), for: .touchUpInside)
+        favoriteButton.addAction(.init(handler: { _ in
+            self.viewModel.didTapFavoriteButton()
         }), for: .touchUpInside)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.fetchArray()
+    }
 }
-extension ShoppingListViewController: UITextFieldDelegate {
 
-}
-extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        self.array.count
-    }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = shoppingListTableView.dequeueReusableCell(withIdentifier: "ShoppingListCell", for: indexPath) as? ShoppingListCell else {fatalError("Cell表示に失敗")}
+extension ShoppingListViewController: UITextFieldDelegate {}
 
-        cell.nameLabel.text = self.array[indexPath.row].itemName
-//        cell.nameLabel.text = self.array[indexPath.row]
-        return cell
+extension ShoppingListViewController: UITableViewDelegate { // , UITableViewDataSource
+
+    func tableView(_: UITableView, didSelectRowAt _: IndexPath) {
     }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        print("\(indexPath.row)番目のcellがタップされました")
-    }
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        if self.viewModel.state == .delete {
-            return true
+
+    func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let delete = UIContextualAction(style: .destructive, title: "削除") { _, _, hander in
+            self.viewModel.deleteAction(indexPath.row)
+            self.viewModel.fetchArray()
+            hander(true)
+        }
+        let configuration = UISwipeActionsConfiguration(actions: [delete])
+        if viewModel.state == .delete {
+            configuration.performsFirstActionWithFullSwipe = true
+            return configuration
         } else {
-            return false
+            return UISwipeActionsConfiguration()
         }
     }
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//        switch editingStyle {
-//        case .delete:
-//            self.array.remove(at: indexPath.row)
-//            shoppingListTableView.beginUpdates()
-//            shoppingListTableView.deleteRows(at: [indexPath], with: .automatic)
-//            shoppingListTableView.endUpdates()
-//        case.insert, .none:
-//            break
-//        }
-    }
 }
+
 extension ShoppingListViewController {
     private func setupBinder() {
         // viewModelのPublishedをsinkで監視購読し実行
-        self.viewModel.$array.sink { [weak self] array in
-                self?.array = array
+        viewModel.$items.sink { [weak self] array in
+            self?.array = array
         }.store(in: &cancellable)
 
-        self.viewModel.$state
+        viewModel.$state
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
-                guard let state = state else {return}
+                guard let state = state else { return }
                 switch state {
                 case .loaded:
-                    self?.reload()
-                case .error(let message):
+                    self?.viewModel.fetchArray()
+                    self?.setButtonImage()
+                    self?.apply()
+                    print("state = loaded")
+                case let .error(message):
                     self?.showErrorMessageIfNeeded(message)
+                    print("state = error")
                 case .favorite:
                     // favorite表示
+
+                    self?.setButtonImage()
+                    self?.apply()
                     print("state = favorite")
                 case .delete:
                     // deleteモード
-
+                    self?.setButtonImage()
+                    self?.deleteButton.tintColor = .red
+                    self?.apply()
                     print("state = delete")
                 }
             }.store(in: &cancellable)
         Task {
-            await viewModel.fetchArray()
+            self.viewModel.setInitialLoadedView()
+            print(self.viewModel.state)
         }
     }
+
     private func reload() {
-//        guard let refreshControl = shoppingListTableView.refreshControl else {return}
-//        shoppingListTableView.setContentOffset(CGPoint(x: 0, y: shoppingListTableView.contentOffset.y - refreshControl.frame.height), animated: true)
-//        refreshControl.beginRefreshing()
-        self.shoppingListTableView.reloadData()
+        shoppingListTableView.reloadData()
     }
+
     private func showErrorMessageIfNeeded(_ message: String) {
         let alert = UIAlertController(title: "エラー", message: message, preferredStyle: .alert)
         alert.addAction(.init(title: "閉じる", style: .default))
         present(alert, animated: true)
+    }
+
+    private func apply() {
+        var snapShot = Snapshot()
+        snapShot.appendSections([0])
+        snapShot.appendItems(viewModel.items, toSection: 0)
+        dataSource?.defaultRowAnimation = .fade
+        if let dataSource {
+            dataSource.apply(snapShot, animatingDifferences: true)
+        } else {
+            dataSource = DataSource(
+                tableView: shoppingListTableView,
+                cellProvider: { [weak self] tableView, indexPath, item in
+                    self?.returnCell(tableView, at: indexPath, item)
+                }
+            )
+            dataSource?.applySnapshotUsingReloadData(snapShot)
+        }
+    }
+
+    private func returnCell(_ tableView: UITableView, at indexPath: IndexPath, _: Item) -> UITableViewCell {
+        let identifier = "ShoppingListCell"
+        let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? ShoppingListCell
+        var item = viewModel.items[indexPath.row]
+        cell?.nameLabel.text = item.itemName
+        cell?.isBoughtButton.addAction(.init(handler: { _ in
+            self.viewModel.didTapIsBought(&item.isBought)
+            cell?.setIsBoughtImage(item.isBought)
+        }), for: .touchUpInside)
+        cell?.isFavoriteButton.addAction(.init(handler: { _ in
+            self.viewModel.didTapIsFavorite(&item.isFavorited)
+            cell?.setIsFavoriteImage(item.isFavorited)
+        }), for: .touchUpInside)
+        return cell!
+    }
+
+    private func setButtonImage() {
+        if viewModel.state == .loaded {
+            favoriteButton.setImage(UIImage(systemName: "star"), for: .normal)
+            favoriteButton.tintColor = .tintColor
+            deleteButton.tintColor = .tintColor
+        } else if viewModel.state == .favorite {
+            favoriteButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+            favoriteButton.tintColor = .yellow
+            deleteButton.tintColor = .tintColor
+        } else if viewModel.state == .delete {
+            favoriteButton.setImage(UIImage(systemName: "star"), for: .normal)
+            favoriteButton.tintColor = .tintColor
+            deleteButton.tintColor = .red
+        }
     }
 }

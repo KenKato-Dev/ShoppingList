@@ -8,8 +8,7 @@
 import UIKit
 
 final class AppendTableViewCell: UITableViewCell {
-
-    @IBOutlet weak var listTextField: TextFieldSub!
+    @IBOutlet var listTextField: TextFieldSub!
     override func awakeFromNib() {
         super.awakeFromNib()
     }
@@ -19,14 +18,17 @@ final class AppendTableViewCell: UITableViewCell {
 
         // Configure the view for the selected state
     }
+
     override func prepareForReuse() {
         super.prepareForReuse()
-        listTextField.text =  ""
+        listTextField.text = ""
     }
+
     func fillInText(_ text: String) {
         listTextField.text = text
     }
 }
+
 extension AppendTableViewCell: UITextFieldDelegate {
     internal func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()

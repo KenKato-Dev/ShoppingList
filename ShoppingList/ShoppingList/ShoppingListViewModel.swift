@@ -5,54 +5,90 @@
 //  Created by 加藤研太郎 on 2023/01/16.
 //
 // Viewが表示するものはViewModelで、このため中の配列に関するところはVMで
-// 
+//
 
 import Foundation
 
 enum StateOfShoppingViewModel: Equatable {
-case loaded
-case error(String)
-case favorite
-case delete
+    case loaded
+    case error(String)
+    case favorite
+    case delete
 }
+
 class ShoppingListViewModel {
-    @Published private (set) var array: [Item] = []
-    @Published private (set) var state: StateOfShoppingViewModel?
-    private (set) var isDelete = false
+    @Published private(set) var items: [Item] = []
+    @Published private(set) var state: StateOfShoppingViewModel?
+    private(set) var isDelete = false
+    private(set) var isFavorite = false
     private let model: ShoppingListModel
+
     init(model: ShoppingListModel) {
         self.model = model
     }
+
     func fetchArray() {
-        self.model.fetch { result in
+        model.fetch { result in
             switch result {
-            case .success(let items):
-                self.state = .loaded
-                self.array = items
+            case let .success(items):
+//                self.state = .loaded
+                self.items = items
                 print(items)
-            case .failure(let failure):
+            case let .failure(failure):
+                print(failure.localizedDescription)
                 self.state = .error(failure.localizedDescription)
             }
         }
     }
-    func didTapFavoriteButton() {
-        self.state = .favorite
 
+    func didTapIsBought(_ isBought: inout Bool) {
+        isBought.toggle()
     }
+
+    func didTapIsFavorite(_ isFavorite: inout Bool) {
+        isFavorite.toggle()
+    }
+
+    func filterFavorites() {
+        items = items.filter { $0.isFavorited }
+    }
+
+    func didTapFavoriteButton() {
+        isFavorite.toggle()
+        if isFavorite {
+            state = .favorite
+            filterFavorites()
+        } else {
+            state = .loaded
+        }
+    }
+
     func didTapDeleteButton() {
-        self.state = .delete
+        isDelete.toggle()
+        if isDelete {
+            state = .delete
+        } else {
+            state = .loaded
+        }
     }
+
     func deleteAction(_ row: Int) {
         // ここに配列から削除処理を追加
-        self.array.remove(at: row)
-        self.model.post(self.array) { result in
-            switch result {
-            case .success:
-                self.fetchArray()
-            case .failure(let failure):
-                self.state = .error(failure.localizedDescription)
-                // ポスト処理失敗を記載
+        if isDelete {
+            items.remove(at: row)
+            model.post(items) { result in
+                switch result {
+                case let .success(success):
+                    self.fetchArray()
+                case let .failure(failure):
+                    print("エラー発生\(failure.localizedDescription)")
+                }
             }
         }
+    }
+
+    func setInitialLoadedView() {
+        state = .loaded
+        fetchArray()
     }
 }

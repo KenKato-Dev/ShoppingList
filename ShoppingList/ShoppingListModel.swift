@@ -16,7 +16,7 @@ struct Item: Codable, Hashable {
 final class ShoppingListModel {
     private let userDefaults = UserDefaults()
 
-    func post(_ itemArray: [Item], _ completion:@escaping(Result<Void, Error>) -> Void) {
+    func post(_ itemArray: [Item], _ completion: @escaping (Result<Void, Error>) -> Void) {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
 
@@ -28,11 +28,11 @@ final class ShoppingListModel {
             completion(.failure(error))
             print("えんこーどに失敗")
         }
-
     }
-    func fetch(_ completion:@escaping(Result<[Item], Error>) -> Void) {
+
+    func fetch(_ completion: @escaping (Result<[Item], Error>) -> Void) {
         let decoder = JSONDecoder()
-        guard let postedItem = userDefaults.value(forKey: "postedData") as? Data else {return}
+        guard let postedItem = userDefaults.value(forKey: "postedData") as? Data else { return }
         do {
             let decodedItemArray = try decoder.decode([Item].self, from: postedItem)
             completion(.success(decodedItemArray))
@@ -41,9 +41,8 @@ final class ShoppingListModel {
             print("デコードに失敗")
         }
     }
-    func delete() {
 
-    }
+    func delete() {}
     // postで代用可能
 //    func postToFavorites(){
 //

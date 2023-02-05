@@ -8,30 +8,34 @@
 import UIKit
 
 class ShoppingListCell: UITableViewCell {
-
-    @IBOutlet weak var isBoughtButton: UIButton!
-    @IBOutlet weak var isFavoriteButton: UIButton!
-    @IBOutlet weak var nameLabel: UILabel!
-//    private var isBought = false {
-//        didSet {
-//            if isBought == true {
-//                isBoughtButton.setImage(UIImage(named: "checkmark.circle"), for: .normal)
-//            } else {
-//                isBoughtButton.setImage(UIImage(named: "circle"), for: .normal)
-//            }
-//        }
-//    }
+    @IBOutlet var isBoughtButton: UIButton!
+    @IBOutlet var isFavoriteButton: UIButton!
+    @IBOutlet var nameLabel: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-        isBoughtButton.addAction(.init(handler: { _ in
-//            self.isBought.toggle()
-        }), for: .touchUpInside)
     }
+
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        // Configure the view for the selected state
-
     }
 
+    func setIsBoughtImage(_ isBought: Bool) {
+        if isBought {
+            isBoughtButton.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
+            isBoughtButton.imageView?.tintColor = .red
+        } else {
+            isBoughtButton.setImage(UIImage(systemName: "circle"), for: .normal)
+            isBoughtButton.tintColor = .darkGray
+        }
+    }
+
+    func setIsFavoriteImage(_ isFavorite: Bool) {
+        if isFavorite {
+            isFavoriteButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+            isFavoriteButton.tintColor = .yellow
+        } else {
+            isFavoriteButton.setImage(UIImage(systemName: "star"), for: .normal)
+            isFavoriteButton.tintColor = .yellow
+        }
+    }
 }
