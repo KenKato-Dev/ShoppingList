@@ -41,12 +41,31 @@ class ShoppingListViewModel {
         }
     }
 
-    func didTapIsBought(_ isBought: inout Bool) {
-        isBought.toggle()
+    func didTapIsBought(_ row: Int) {
+        self.items[row].isBought.toggle()
+        self.model.post(items) { result in
+            switch result {
+            case .success(let success):
+                self.fetchArray()
+                print(self.items[row])
+            case .failure(let failure):
+                print(failure.localizedDescription)
+            }
+        }
+
     }
 
-    func didTapIsFavorite(_ isFavorite: inout Bool) {
-        isFavorite.toggle()
+    func didTapIsFavorite(_ row: Int) {
+        self.items[row].isFavorited.toggle()
+        self.model.post(items) { result in
+            switch result {
+            case .success(let success):
+                self.fetchArray()
+                print(self.items[row])
+            case .failure(let failure):
+                print(failure.localizedDescription)
+            }
+        }
     }
 
     func filterFavorites() {

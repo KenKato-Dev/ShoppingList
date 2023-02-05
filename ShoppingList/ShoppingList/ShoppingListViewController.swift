@@ -13,7 +13,7 @@ class ShoppingListViewController: UIViewController {
     @IBOutlet var favoriteButton: UIButton!
     @IBOutlet var shoppingListTableView: UITableView!
     @IBOutlet var deleteButton: UIButton!
-    private var array: [Item] = []
+    private var items: [Item] = []
     private var cancellable = Set<AnyCancellable>()
     private let viewModel: ShoppingListViewModel = .init(model: ShoppingListModel())
     private typealias Snapshot = NSDiffableDataSourceSnapshot<Int, Item>
@@ -67,8 +67,8 @@ extension ShoppingListViewController: UITableViewDelegate { // , UITableViewData
 extension ShoppingListViewController {
     private func setupBinder() {
         // viewModelのPublishedをsinkで監視購読し実行
-        viewModel.$items.sink { [weak self] array in
-            self?.array = array
+        viewModel.$items.sink { [weak self] items in
+            self?.items = items
         }.store(in: &cancellable)
 
         viewModel.$state
@@ -136,15 +136,21 @@ extension ShoppingListViewController {
     private func returnCell(_ tableView: UITableView, at indexPath: IndexPath, _: Item) -> UITableViewCell {
         let identifier = "ShoppingListCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? ShoppingListCell
-        var item = viewModel.items[indexPath.row]
+        //
+//        var item = viewModel.items[indexPath.row]
+        var item = self.items[indexPath.row]
         cell?.nameLabel.text = item.itemName
+        cell?.setIsBoughtImage(item.isBought)
+        cell?.setIsFavoriteImage(item.isFavorited)
         cell?.isBoughtButton.addAction(.init(handler: { _ in
-            self.viewModel.didTapIsBought(&item.isBought)
+            self.viewModel.didTapIsBought(indexPath.row)
             cell?.setIsBoughtImage(item.isBought)
+            print(item)
         }), for: .touchUpInside)
         cell?.isFavoriteButton.addAction(.init(handler: { _ in
-            self.viewModel.didTapIsFavorite(&item.isFavorited)
+            self.viewModel.didTapIsFavorite(indexPath.row)
             cell?.setIsFavoriteImage(item.isFavorited)
+            print(item)
         }), for: .touchUpInside)
         return cell!
     }
