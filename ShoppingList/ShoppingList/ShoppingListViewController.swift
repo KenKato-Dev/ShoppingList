@@ -13,7 +13,6 @@ class ShoppingListViewController: UIViewController {
     @IBOutlet var favoriteButton: UIButton!
     @IBOutlet var shoppingListTableView: UITableView!
     @IBOutlet var deleteButton: UIButton!
-    private var items: [Item] = []
     private var cancellable = Set<AnyCancellable>()
     private let viewModel: ShoppingListViewModel = .init(model: ShoppingListModel())
     private typealias Snapshot = NSDiffableDataSourceSnapshot<Int, Item>
@@ -63,10 +62,6 @@ extension ShoppingListViewController: UITableViewDelegate { // , UITableViewData
 
 extension ShoppingListViewController {
     private func setupBinder() {
-        // viewModelのPublishedをsinkで監視購読し実行
-        viewModel.$items.sink { [weak self] items in
-            self?.items = items
-        }.store(in: &cancellable)
         viewModel.$state
             .dropFirst() // ()内の数までの要素をパブリッシュ化から除外
             .receive(on: DispatchQueue.main)// スケジューラー、ここでいつどこで処理するか決定
@@ -80,7 +75,7 @@ extension ShoppingListViewController {
                     self?.setButtonImage()
                     self?.apply()
                     print("state = loaded")
-                    print(self!.items)
+//                    print(self!.items)
                 case let .error(message):
                     self?.showErrorMessageIfNeeded(message)
                     print("state = error")
@@ -105,11 +100,13 @@ extension ShoppingListViewController {
                         print("delete")
                     }
             }.store(in: &cancellable)
-        Task {
-//            self.viewModel.setInitialLoadedView()
-            self.apply()
-//            self.viewModel.reload(shoppingListTableView)
-        }
+        dataSource = DataSource(
+            tableView: shoppingListTableView,
+            cellProvider: { [weak self] tableView, indexPath, item in
+                self?.returnCell(tableView, at: indexPath, item: item)
+            }
+        )
+        self.apply()
     }
 
     private func reload() {
@@ -130,35 +127,29 @@ extension ShoppingListViewController {
         if let dataSource {
             dataSource.apply(snapShot, animatingDifferences: true)
         } else {
-            dataSource = DataSource(
-                tableView: shoppingListTableView,
-                cellProvider: { [weak self] tableView, indexPath, item in
-                    self?.returnCell(tableView, at: indexPath, item)
-                }
-            )
             dataSource?.applySnapshotUsingReloadData(snapShot)
         }
     }
 
-    private func returnCell(_ tableView: UITableView, at indexPath: IndexPath, _: Item) -> UITableViewCell {
+    private func returnCell(_ tableView: UITableView, at indexPath: IndexPath, item: Item) -> UITableViewCell {
         let identifier = "ShoppingListCell"
         guard let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? ShoppingListCell else {return UITableViewCell()}
         //
-        cell.nameLabel.text = self.items[indexPath.row].itemName
-        cell.nameLabel.attributedText = self.viewModel.writeStrikeThroughLine(self.items[indexPath.row].isBought, (cell.nameLabel.text)!)
+        cell.nameLabel.text = item.itemName
+        cell.nameLabel.attributedText = self.viewModel.writeStrikeThroughLine(item.isBought, (cell.nameLabel.text)!)
 
-        cell.setIsBoughtImage(self.items[indexPath.row].isBought)
-        cell.setIsFavoriteImage(self.items[indexPath.row].isFavorited)
+        cell.setIsBoughtImage(item.isBought)
+        cell.setIsFavoriteImage(item.isFavorited)
         cell.didTapBoughtButton = {
             guard let text =  cell.nameLabel.text else {return}
             //
             self.viewModel.didTapIsBought(indexPath.row)
-            cell.setIsBoughtImage(self.items[indexPath.row].isBought)
-            cell.nameLabel.attributedText = self.viewModel.writeStrikeThroughLine(self.items[indexPath.row].isBought, text)
+            cell.setIsBoughtImage(item.isBought)
+            cell.nameLabel.attributedText = self.viewModel.writeStrikeThroughLine(item.isBought, text)
         }
         cell.didTapIsFavorite = {
             self.viewModel.didTapIsFavorite(indexPath.row)
-            cell.setIsFavoriteImage(self.items[indexPath.row].isFavorited)
+            cell.setIsFavoriteImage(item.isFavorited)
         }
 //        cell.didTapIsFavorite = self.viewModel.didTapIsFaborite2(indexPath.row)
 
