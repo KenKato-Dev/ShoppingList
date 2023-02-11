@@ -149,20 +149,17 @@ extension ShoppingListViewController {
 
         cell.setIsBoughtImage(self.items[indexPath.row].isBought)
         cell.setIsFavoriteImage(self.items[indexPath.row].isFavorited)
-        cell.isBoughtButton.addAction(.init(handler: { _ in
-            //
+        cell.didTapBoughtButton = {
             guard let text =  cell.nameLabel.text else {return}
             //
             self.viewModel.didTapIsBought(indexPath.row)
             cell.setIsBoughtImage(self.items[indexPath.row].isBought)
             cell.nameLabel.attributedText = self.viewModel.writeStrikeThroughLine(self.items[indexPath.row].isBought, text)
-//            print("状態：\(cell?.nameLabel.attributedText)")
-        }), for: .touchUpInside)
-        cell.isFavoriteButton.addAction(.init(handler: { _ in
+        }
+        cell.didTapIsFavorite = {
             self.viewModel.didTapIsFavorite(indexPath.row)
             cell.setIsFavoriteImage(self.items[indexPath.row].isFavorited)
-
-        }), for: .touchUpInside)
+        }
 //        cell.didTapIsFavorite = self.viewModel.didTapIsFaborite2(indexPath.row)
 
         return cell

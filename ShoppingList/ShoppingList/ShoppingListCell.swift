@@ -11,30 +11,19 @@ class ShoppingListCell: UITableViewCell {
     @IBOutlet var isBoughtButton: UIButton!
     @IBOutlet var isFavoriteButton: UIButton!
     @IBOutlet var nameLabel: UILabel!
-    var didTapIsFavorite: ((Bool) -> Void)?
+    var didTapIsFavorite: (() -> Void)?
+    var didTapBoughtButton: (() -> Void)?
     private (set) var isFaborite = false
+
     override func awakeFromNib() {
         super.awakeFromNib()
-    }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-//        isFavoriteButton.addAction(.init(handler: { _ in
-//            if self.isFaborite == true {
-//                self.isFaborite = false
-//                self.setIsFavoriteImage(self.isFaborite)
-//            } else {
-//                self.isFaborite = true
-//                self.setIsFavoriteImage(self.isFaborite)
-//            }
-//        }), for: .touchUpInside)
-    }
-    override func prepareForReuse() {
-        super.prepareForReuse()
-//        isBoughtButton.setImage(UIImage(systemName: "circle"), for: .normal)
-//        isBoughtButton.tintColor = .darkGray
-//        isFavoriteButton.setImage(UIImage(systemName: "star"), for: .normal)
-//        isFavoriteButton.tintColor = .yellow
+        isFavoriteButton.addAction(.init(handler: { [weak self] _ in
+            self?.didTapIsFavorite?()
+        }), for: .touchUpInside)
+        isBoughtButton.addAction(.init(handler: { [weak self] _ in
+            self?.didTapBoughtButton?()
+        }), for: .touchUpInside)
     }
 
     func setIsBoughtImage(_ isBought: Bool) {
