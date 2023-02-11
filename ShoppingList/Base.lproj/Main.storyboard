@@ -120,7 +120,9 @@
                                     <rect key="frame" x="74" y="5" width="52" height="34.333333333333336"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <state key="normal" title="Button"/>
-                                    <buttonConfiguration key="configuration" style="plain" image="star" catalog="system"/>
+                                    <buttonConfiguration key="configuration" style="plain" image="star" catalog="system">
+                                        <color key="baseForegroundColor" systemColor="systemYellowColor"/>
+                                    </buttonConfiguration>
                                 </button>
                             </barButtonItem>
                         </leftBarButtonItems>
