@@ -9,7 +9,7 @@ import UIKit
 
 final class AppendTableViewCell: UITableViewCell {
     @IBOutlet var listTextField: TextFieldSub!
-    var didEditingEnd: (() -> ())?
+    var didEditingEnd: (() -> Void)?
 
     override func awakeFromNib() {
         super.awakeFromNib()
