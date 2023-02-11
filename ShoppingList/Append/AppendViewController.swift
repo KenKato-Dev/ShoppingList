@@ -16,7 +16,7 @@ final class AppendViewController: UIViewController {
     private var cancellable = Set<AnyCancellable>()
     private let viewModel: AppendViewModel = .init(model: ShoppingListModel())
     private var count: Int = 0
-    private var array: [String]?
+//    private var array: [String] = []
     override func viewDidLoad() {
         super.viewDidLoad()
         memoTable.delegate = self
@@ -42,9 +42,6 @@ final class AppendViewController: UIViewController {
     private func binder() {
         viewModel.$count.sink { [weak self] count in
             self?.count = count ?? 0
-        }.store(in: &cancellable)
-        viewModel.$array.sink { [weak self] array in
-            self?.array = array
         }.store(in: &cancellable)
         viewModel.$state
             .dropFirst()
@@ -79,9 +76,12 @@ extension AppendViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MemoListCell", for: indexPath) as? AppendTableViewCell
         cell?.listTextField.delegate = self
-        guard array!.count > 0 else { return cell! }
-        if array?[indexPath.row] != nil {
-            cell?.fillInText(array![indexPath.row])
+        cell?.fillInText(viewModel.array[indexPath.row])
+        cell?.didEditingEnd = {
+            guard let text = cell?.listTextField.text else { return }
+            self.viewModel.didEditTextField(indexPath.row, text)
+            self.memoTable.reloadData()
+            print(indexPath.row)
         }
         return cell!
     }
@@ -90,12 +90,6 @@ extension AppendViewController: UITableViewDelegate, UITableViewDataSource {
         // 選択時にキーボードを上げる
         let cell = tableView.cellForRow(at: indexPath) as? AppendTableViewCell
         tableView.deselectRow(at: indexPath, animated: false)
-        cell?.listTextField.addAction(.init(handler: { _ in
-            guard let text = cell?.listTextField.text else { return }
-            self.viewModel.didEditTextField(indexPath.row, text)
-            self.memoTable.reloadData()
-            print(indexPath.row)
-        }), for: .editingDidEnd)
         cell?.listTextField.becomeFirstResponder()
     }
 }

@@ -9,8 +9,14 @@ import UIKit
 
 final class AppendTableViewCell: UITableViewCell {
     @IBOutlet var listTextField: TextFieldSub!
+    var didEditingEnd: (() -> ())?
+
     override func awakeFromNib() {
         super.awakeFromNib()
+
+        listTextField.addAction(.init(handler: { [weak self] _ in
+            self?.didEditingEnd?()
+        }), for: .editingDidEnd)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
