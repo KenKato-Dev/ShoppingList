@@ -16,7 +16,6 @@ final class AppendViewController: UIViewController {
     private var cancellable = Set<AnyCancellable>()
     private let viewModel: AppendViewModel = .init(model: ShoppingListModel())
     private var count: Int = 0
-//    private var array: [String] = []
     override func viewDidLoad() {
         super.viewDidLoad()
         memoTable.delegate = self
@@ -41,7 +40,7 @@ final class AppendViewController: UIViewController {
 
     private func binder() {
         viewModel.$count.sink { [weak self] count in
-            self?.count = count ?? 0
+            self?.count = count
         }.store(in: &cancellable)
         viewModel.$state
             .dropFirst()
@@ -87,7 +86,6 @@ extension AppendViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // 選択時にキーボードを上げる
         let cell = tableView.cellForRow(at: indexPath) as? AppendTableViewCell
         tableView.deselectRow(at: indexPath, animated: false)
         cell?.listTextField.becomeFirstResponder()

@@ -14,6 +14,7 @@ enum StateOfShoppingViewModel: Equatable {
     case loaded
     case error(String)
 }
+
 enum StateOfTableView {
     case normal
     case favorite
@@ -25,22 +26,21 @@ class ShoppingListViewModel {
     @Published private(set) var state: StateOfShoppingViewModel?
     private(set) var isDelete = false
     private(set) var isFavorite = false
-//    private var didTapIsFavorite: ((Bool) -> Void)?
     private let model: ShoppingListModel
-    @Published private (set) var stateOfTableView: StateOfTableView?
+    @Published private(set) var stateOfTableView: StateOfTableView?
     init(model: ShoppingListModel) {
         self.model = model
     }
 
     func fetchArray(_ stateOfTableView: StateOfTableView) {
-        self.state = .loading
-          model.fetch { result in
+        state = .loading
+        model.fetch { result in
             switch result {
             case let .success(items):
                 if stateOfTableView == .normal || stateOfTableView == .delete {
                     self.items = items
                 } else if self.stateOfTableView == .favorite {
-                    self.items = items.filter {$0.isFavorited}
+                    self.items = items.filter { $0.isFavorited }
                 }
                 self.state = .loaded
             case let .failure(failure):
@@ -49,64 +49,48 @@ class ShoppingListViewModel {
             }
         }
     }
+
     func reload(_ tableView: UITableView) {
-        self.fetchArray(.normal)
+        fetchArray(.normal)
         tableView.reloadData()
     }
 
     func didTapIsBought(_ row: Int) {
-        self.items[row].isBought.toggle()
-        self.model.post(items) { result in
+        items[row].isBought.toggle()
+        model.post(items) { result in
             switch result {
             case .success:
-                     self.fetchArray(self.stateOfTableView ?? .normal)
-                    print(self.items[row])
-            case .failure(let failure):
+                self.fetchArray(self.stateOfTableView ?? .normal)
+                print(self.items[row])
+            case let .failure(failure):
                 print(failure.localizedDescription)
             }
         }
-
     }
 
     func didTapIsFavorite(_ row: Int) {
-        self.items[row].isFavorited.toggle()
-        self.model.post(items) { result in
+        items[row].isFavorited.toggle()
+        model.post(items) { result in
             switch result {
             case .success:
                 self.fetchArray(self.stateOfTableView ?? .normal)
                 print("didTapF:\(self.items[row])")
-            case .failure(let failure):
+            case let .failure(failure):
                 print(failure.localizedDescription)
             }
         }
     }
-//    func didTapIsFaborite2(_ row: Int) -> ((Bool) -> Void)? {
-//        self.didTapIsFavorite = { isTapped in
-//            self.items[row].isFavorited = isTapped
-//            self.model.post(self.items) { result in
-//                switch result {
-//                case .success:
-//                    self.fetchArray(self.stateOfTableView ?? .normal)
-//                        print("didTapF:\(self.items[row])")
-//                    print("番号\(row)")
-//                case .failure(let failure):
-//                    print(failure.localizedDescription)
-//                }
-//            }
-//        }
-//        return self.didTapIsFavorite
-//    }
 
     func didTapFavoriteButton() {
         isFavorite.toggle()
         if isFavorite {
             stateOfTableView = .favorite
-             self.fetchArray(self.stateOfTableView ?? .normal)
-            self.state = .loaded
+            fetchArray(stateOfTableView ?? .normal)
+            state = .loaded
         } else {
             stateOfTableView = .normal
-             self.fetchArray(self.stateOfTableView ?? .normal)
-            self.state = .loaded
+            fetchArray(stateOfTableView ?? .normal)
+            state = .loaded
         }
     }
 
@@ -120,12 +104,11 @@ class ShoppingListViewModel {
     }
 
     func deleteAction(_ row: Int) {
-        // ここに配列から削除処理を追加
         if isDelete {
             items.remove(at: row)
             model.post(items) { result in
                 switch result {
-                   case .success:
+                case .success:
                     self.fetchArray(self.stateOfTableView ?? .normal)
                 case let .failure(failure):
                     print("エラー発生\(failure.localizedDescription)")
@@ -136,11 +119,11 @@ class ShoppingListViewModel {
 
     func setInitialLoadedView() {
         state = .loaded
-        fetchArray(self.stateOfTableView ?? .normal)
-
+        fetchArray(stateOfTableView ?? .normal)
     }
+
     func writeStrikeThroughLine(_ isBought: Bool, _ cellText: String) -> NSMutableAttributedString {
-        let attributeString: NSMutableAttributedString = NSMutableAttributedString(string: cellText)
+        let attributeString = NSMutableAttributedString(string: cellText)
         if isBought {
             attributeString.addAttribute(
                 NSAttributedString.Key.strikethroughStyle,
@@ -149,7 +132,6 @@ class ShoppingListViewModel {
             )
             return attributeString
         } else {
-
             attributeString.addAttribute(
                 NSAttributedString.Key.strikethroughStyle,
                 value: 0,

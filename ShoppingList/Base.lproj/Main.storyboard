@@ -24,7 +24,7 @@
             </objects>
             <point key="canvasLocation" x="260" y="-13"/>
         </scene>
-        <!--Shopping List View Controller-->
+        <!--買うものリスト-->
         <scene sceneID="M49-I6-lHH">
             <objects>
                 <viewController id="C1o-JA-TrA" customClass="ShoppingListViewController" customModule="ShoppingList" customModuleProvider="target" sceneMemberID="viewController">
@@ -102,7 +102,7 @@
                             <constraint firstItem="amv-qr-XIM" firstAttribute="bottom" secondItem="dpw-GI-QMw" secondAttribute="bottom" constant="10" id="b80-YS-5jb"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="5zX-A6-YKa">
+                    <navigationItem key="navigationItem" title="買うものリスト" id="5zX-A6-YKa">
                         <leftBarButtonItems>
                             <barButtonItem style="plain" id="Z8w-HB-5Hn">
                                 <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="dOX-5S-sV4">

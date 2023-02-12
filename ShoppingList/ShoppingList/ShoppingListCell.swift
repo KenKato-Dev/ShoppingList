@@ -13,7 +13,7 @@ class ShoppingListCell: UITableViewCell {
     @IBOutlet var nameLabel: UILabel!
     var didTapIsFavorite: (() -> Void)?
     var didTapBoughtButton: (() -> Void)?
-    private (set) var isFaborite = false
+    private(set) var isFaborite = false
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -39,11 +39,8 @@ class ShoppingListCell: UITableViewCell {
     func setIsFavoriteImage(_ isFavorite: Bool) {
         if isFavorite {
             isFavoriteButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
-//            isFavoriteButton.tintColor = .yellow
         } else {
             isFavoriteButton.setImage(UIImage(systemName: "star"), for: .normal)
-//            isFavoriteButton.tintColor = .yellow
         }
-//        self.didTapIsFavorite?(isFavorite)
     }
 }
